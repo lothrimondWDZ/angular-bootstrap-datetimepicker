@@ -50,7 +50,7 @@
       }
 
       var validateConfiguration = function validateConfiguration(configuration) {
-        var validOptions = ['startView', 'minView', 'minuteStep', 'dropdownSelector'];
+        var validOptions = ['startView', 'minView', 'minuteStep', 'dropdownSelector', 'minDate', 'maxDate'];
 
         for (var prop in configuration) {
           //noinspection JSUnfilteredForInLoop
@@ -82,7 +82,7 @@
         }
         if (configuration.dropdownSelector !== null && !angular.isString(configuration.dropdownSelector)) {
           throw ('dropdownSelector must be a string');
-        }
+        } 
 
         /* istanbul ignore next */
         if (configuration.dropdownSelector !== null && ((typeof jQuery === 'undefined') || (typeof jQuery().dropdown !== 'function'))) {
@@ -91,7 +91,36 @@
           'The dropdownSelector configuration option is being removed because it will not function properly.');
           delete configuration.dropdownSelector;
         }
-      };
+        if(configuration.minDate){
+        	if ( Object.prototype.toString.call(configuration.minDate) === "[object Date]" ) {
+        		// it is a date
+        		if ( isNaN( configuration.minDate.getTime() ) ) {
+        			throw ('minDate must be valid Date object');
+        		}
+        	}
+        	else {
+        		throw ('minDate must be valid Date object');
+        	}
+        }else{
+        	configuration.minDate = new Date(0);
+        }
+        if(configuration.maxDate){
+        	if ( Object.prototype.toString.call(configuration.maxDate) === "[object Date]" ) {
+        		// it is a date
+        		if ( isNaN( configuration.maxDate.getTime() ) ) {
+        			throw ('maxDate must be valid Date object');
+        		}
+        	}
+        	else {
+        		throw ('maxDate must be valid Date object');
+        	}
+        }else{
+        	var now = new Date();
+        	now.setFullYear(now.getFullYear() + 50);
+        	configuration.maxDate = now;
+        }
+        
+      }; 
 
       return {
         restrict: 'E',
@@ -131,7 +160,6 @@
         },
         replace: true,
         link: function link(scope, element, attrs, ngModelController) {
-
           var directiveConfig = {};
 
           if (attrs.datetimepickerConfig) {
@@ -176,10 +204,15 @@
                   'display': yearMoment.format('YYYY'),
                   'past': yearMoment.year() < startDecade,
                   'future': yearMoment.year() > startDecade + 9,
-                  'active': yearMoment.year() === activeYear
+                  'active': yearMoment.year() === activeYear,
+                  'selectable': true,
                 };
-
-                result.dates.push(new DateObject(dateValue));
+                if(configuration.minDate <= new Date(dateValue.dateValue) && new Date(dateValue.dateValue) <= configuration.maxDate){
+                	result.dates.push(new DateObject(dateValue));
+                }else{
+                	dateValue['selectable']=false;
+                	result.dates.push(new DateObject(dateValue));
+                }
               }
 
               return result;
@@ -209,10 +242,15 @@
                 var dateValue = {
                   'dateValue': monthMoment.valueOf(),
                   'display': monthMoment.format('MMM'),
-                  'active': monthMoment.format('YYYY-MMM') === activeDate
+                  'active': monthMoment.format('YYYY-MMM') === activeDate,
+                  'selectable': true,
                 };
-
-                result.dates.push(new DateObject(dateValue));
+                if(configuration.minDate <= new Date(dateValue.dateValue) && new Date(dateValue.dateValue) <= configuration.maxDate){
+                	result.dates.push(new DateObject(dateValue));
+                }else{
+                	dateValue['selectable']=false;
+                	result.dates.push(new DateObject(dateValue));
+                }
               }
 
               return result;
@@ -257,9 +295,15 @@
                     'display': monthMoment.format('D'),
                     'active': monthMoment.format('YYYY-MMM-DD') === activeDate,
                     'past': monthMoment.isBefore(startOfMonth),
-                    'future': monthMoment.isAfter(endOfMonth)
+                    'future': monthMoment.isAfter(endOfMonth),
+                    'selectable': true,
                   };
-                  week.dates.push(new DateObject(dateValue));
+                  if(configuration.minDate <= new Date(dateValue.dateValue) && new Date(dateValue.dateValue) <= configuration.maxDate){
+                  	week.dates.push(new DateObject(dateValue));
+                  }else{
+                  	dateValue['selectable']=false;
+                  	week.dates.push(new DateObject(dateValue));
+                  }
                 }
                 result.weeks.push(week);
               }
@@ -293,7 +337,6 @@
                   'display': hourMoment.format('LT'),
                   'active': hourMoment.format('YYYY-MM-DD H') === activeFormat
                 };
-
                 result.dates.push(new DateObject(dateValue));
               }
 
@@ -327,7 +370,6 @@
                   'display': hourMoment.format('LT'),
                   'active': hourMoment.format('YYYY-MM-DD H:mm') === activeFormat
                 };
-
                 result.dates.push(new DateObject(dateValue));
               }
 
