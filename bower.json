@@ -4,7 +4,7 @@
   "description": "This directive allows you to add a datetime-picker to your form.",
   "author": "https://github.com/dalelotts/angular-bootstrap-datetimepicker/graphs/contributors",
   "license": "MIT",
-  "homepage": "http://dalelotts.github.io/angular-bootstrap-datetimepicker",
+  "homepage": "https://github.com/lothrimondWDZ/angular-bootstrap-datetimepicker.git",
   "main": [
     "./src/js/datetimepicker.js",
     "./src/css/datetimepicker.css"
