@@ -91,34 +91,34 @@
           'The dropdownSelector configuration option is being removed because it will not function properly.');
           delete configuration.dropdownSelector;
         }
-        if(configuration.minDate){
-        	if ( Object.prototype.toString.call(configuration.minDate) === "[object Date]" ) {
-        		// it is a date
-        		if ( isNaN( configuration.minDate.getTime() ) ) {
-        			throw ('minDate must be valid Date object');
-        		}
-        	}
-        	else {
-        		throw ('minDate must be valid Date object');
-        	}
-        }else{
-        	configuration.minDate = new Date(0);
-        }
-        if(configuration.maxDate){
-        	if ( Object.prototype.toString.call(configuration.maxDate) === "[object Date]" ) {
-        		// it is a date
-        		if ( isNaN( configuration.maxDate.getTime() ) ) {
-        			throw ('maxDate must be valid Date object');
-        		}
-        	}
-        	else {
-        		throw ('maxDate must be valid Date object');
-        	}
-        }else{
-        	var now = new Date();
-        	now.setFullYear(now.getFullYear() + 50);
-        	configuration.maxDate = now;
-        }
+//        if(configuration.minDate){
+//        	if ( Object.prototype.toString.call(configuration.minDate) === "[object Date]" ) {
+//        		// it is a date
+//        		if ( isNaN( configuration.minDate.getTime() ) ) {
+//        			throw ('minDate must be valid Date object');
+//        		}
+//        	}
+//        	else {
+//        		throw ('minDate must be valid Date object');
+//        	}
+//        }else{
+//        	configuration.minDate = new Date(0);
+//        }
+//        if(configuration.maxDate){
+//        	if ( Object.prototype.toString.call(configuration.maxDate) === "[object Date]" ) {
+//        		// it is a date
+//        		if ( isNaN( configuration.maxDate.getTime() ) ) {
+//        			throw ('maxDate must be valid Date object');
+//        		}
+//        	}
+//        	else {
+//        		throw ('maxDate must be valid Date object');
+//        	}
+//        }else{
+//        	var now = new Date();
+//        	now.setFullYear(now.getFullYear() + 50);
+//        	configuration.maxDate = now;
+//        }
         
       }; 
 
@@ -155,6 +155,8 @@
         '   </tbody>' +
         '</table></div>',
         scope: {
+          minDate: '@',
+          maxDate: '@',
           onSetTime: '&',
           beforeRender: '&'
         },
@@ -176,6 +178,24 @@
             var startYear = (parseInt(moment.utc(unixDate).year() / 10, 10) * 10);
             return moment.utc(unixDate).year(startYear).startOf('year');
           };
+          
+          var minDate,maxDate;
+          attrs.$observe('minDate', function(minDateAttr){
+        	  if(minDateAttr){
+        		  minDate = new Date(JSON.parse(scope['minDate']));
+        	  }else{
+        		  minDate = -Infinity;
+        	  }
+        	  ngModelController.$render();
+          });
+          attrs.$observe('maxDate', function(maxDateAttr){
+        	  if(scope['maxDate']){
+        		  maxDate = new Date(JSON.parse(scope['maxDate']));
+        	  }else{
+        		  maxDate = Infinity;
+        	  }
+        	  ngModelController.$render();
+          });
 
           var dataFactory = {
             year: function year(unixDate) {
@@ -207,7 +227,7 @@
                   'active': yearMoment.year() === activeYear,
                   'selectable': true,
                 };
-                if(configuration.minDate <= new Date(dateValue.dateValue) && new Date(dateValue.dateValue) <= configuration.maxDate){
+                if(minDate <= new Date(dateValue.dateValue) && new Date(dateValue.dateValue) <= maxDate){
                 	result.dates.push(new DateObject(dateValue));
                 }else{
                 	dateValue['selectable']=false;
@@ -245,7 +265,7 @@
                   'active': monthMoment.format('YYYY-MMM') === activeDate,
                   'selectable': true,
                 };
-                if(configuration.minDate <= new Date(dateValue.dateValue) && new Date(dateValue.dateValue) <= configuration.maxDate){
+                if(minDate <= new Date(dateValue.dateValue) && new Date(dateValue.dateValue) <= maxDate){
                 	result.dates.push(new DateObject(dateValue));
                 }else{
                 	dateValue['selectable']=false;
@@ -298,7 +318,7 @@
                     'future': monthMoment.isAfter(endOfMonth),
                     'selectable': true,
                   };
-                  if(configuration.minDate <= new Date(dateValue.dateValue) && new Date(dateValue.dateValue) <= configuration.maxDate){
+                  if(minDate <= new Date(dateValue.dateValue) && new Date(dateValue.dateValue) <= maxDate){
                   	week.dates.push(new DateObject(dateValue));
                   }else{
                   	dateValue['selectable']=false;
