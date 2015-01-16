@@ -91,6 +91,34 @@
           'The dropdownSelector configuration option is being removed because it will not function properly.');
           delete configuration.dropdownSelector;
         }
+//        if(configuration.minDate){
+//        	if ( Object.prototype.toString.call(configuration.minDate) === "[object Date]" ) {
+//        		// it is a date
+//        		if ( isNaN( configuration.minDate.getTime() ) ) {
+//        			throw ('minDate must be valid Date object');
+//        		}
+//        	}
+//        	else {
+//        		throw ('minDate must be valid Date object');
+//        	}
+//        }else{
+//        	configuration.minDate = new Date(0);
+//        }
+//        if(configuration.maxDate){
+//        	if ( Object.prototype.toString.call(configuration.maxDate) === "[object Date]" ) {
+//        		// it is a date
+//        		if ( isNaN( configuration.maxDate.getTime() ) ) {
+//        			throw ('maxDate must be valid Date object');
+//        		}
+//        	}
+//        	else {
+//        		throw ('maxDate must be valid Date object');
+//        	}
+//        }else{
+//        	var now = new Date();
+//        	now.setFullYear(now.getFullYear() + 50);
+//        	configuration.maxDate = now;
+//        }
         
       }; 
 
@@ -155,7 +183,6 @@
           attrs.$observe('minDate', function(minDateAttr){
         	  if(minDateAttr){
         		  minDate = new Date(JSON.parse(scope['minDate']));
-        		  minDate.setHours(0,0,0,0);
         	  }else{
         		  minDate = -Infinity;
         	  }
@@ -164,7 +191,6 @@
           attrs.$observe('maxDate', function(maxDateAttr){
         	  if(scope['maxDate']){
         		  maxDate = new Date(JSON.parse(scope['maxDate']));
-        		  maxDate.setHours(23,59,59,999);
         	  }else{
         		  maxDate = Infinity;
         	  }
@@ -329,18 +355,8 @@
                 var dateValue = {
                   'dateValue': hourMoment.valueOf(),
                   'display': hourMoment.format('LT'),
-                  'active': hourMoment.format('YYYY-MM-DD H') === activeFormat,
-                  'selectable': true
+                  'active': hourMoment.format('YYYY-MM-DD H') === activeFormat
                 };
-                
-                if(minDate <= new Date(dateValue.dateValue) && new Date(dateValue.dateValue) <= maxDate){
-                  result.dates.push(new DateObject(dateValue));
-                }else{
-                  dateValue['selectable']=false;
-                  result.dates.push(new DateObject(dateValue));
-                }
-                
-                
                 result.dates.push(new DateObject(dateValue));
               }
 
@@ -441,4 +457,3 @@
       };
     }]);
 }));
-
