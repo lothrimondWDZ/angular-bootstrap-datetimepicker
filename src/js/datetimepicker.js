@@ -340,8 +340,6 @@
                   result.dates.push(new DateObject(dateValue));
                 }
                 
-                
-                result.dates.push(new DateObject(dateValue));
               }
 
               return result;
